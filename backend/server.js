@@ -1,4 +1,6 @@
 // backend/server.js
+require('dotenv').config(); // Load environment variables first
+
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
