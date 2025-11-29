@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { useAuth } from "../contexts/AuthContext";
-import AgentStatusBar from '../components/AgentStatusBar';
-import CoordinationTimeline from '../components/CoordinationTimeline';
-import ImpactSummary from '../components/ImpactSummary';
-import AgentNetworkDiagram from '../components/AgentNetworkDiagram';
-import ScenarioProgress from '../components/ScenarioProgress';
+import AgentStatusBar from "../components/AgentStatusBar";
+import CoordinationTimeline from "../components/CoordinationTimeline";
+import ImpactSummary from "../components/ImpactSummary";
+import AgentNetworkDiagram from "../components/AgentNetworkDiagram";
+import ScenarioProgress from "../components/ScenarioProgress";
 
 function CityDashboard() {
   const { user, logout } = useAuth();
@@ -15,8 +15,8 @@ function CityDashboard() {
   const [logs, setLogs] = useState([]);
   const [state, setState] = useState(null);
   const [autoDemoActive, setAutoDemoActive] = useState(false);
-  const [currentScenario, setCurrentScenario] = useState('');
-  
+  const [currentScenario, setCurrentScenario] = useState("");
+
   const autoDemoIntervalRef = useRef(null);
   const socketRef = useRef(null);
   const lastLogTimeRef = useRef(null);
@@ -84,20 +84,22 @@ function CityDashboard() {
     if (autoDemoActive) {
       clearInterval(autoDemoIntervalRef.current);
       setAutoDemoActive(false);
-      setCurrentScenario('');
+      setCurrentScenario("");
       return;
     }
 
     setAutoDemoActive(true);
-    const scenarios = ['dengue', 'malaria', 'covid', 'heatwave'];
+    const scenarios = ["dengue", "malaria", "covid", "heatwave"];
     let index = 0;
 
     const triggerNext = async () => {
       const scenario = scenarios[index];
       setCurrentScenario(scenario);
-      
+
       try {
-        await fetch(`http://localhost:4000/api/simulate/${scenario}`, { method: 'POST' });
+        await fetch(`http://localhost:4000/api/simulate/${scenario}`, {
+          method: "POST",
+        });
       } catch (error) {
         console.error("Error triggering scenario:", error);
       }
@@ -112,7 +114,9 @@ function CityDashboard() {
   // Manual scenario triggers
   const triggerScenario = async (scenario) => {
     try {
-      await fetch(`http://localhost:4000/api/simulate/${scenario}`, { method: 'POST' });
+      await fetch(`http://localhost:4000/api/simulate/${scenario}`, {
+        method: "POST",
+      });
     } catch (error) {
       console.error("Error triggering scenario:", error);
     }
@@ -120,7 +124,9 @@ function CityDashboard() {
 
   const resetSystem = async () => {
     try {
-      await fetch("http://localhost:4000/api/simulate/reset", { method: 'POST' });
+      await fetch("http://localhost:4000/api/simulate/reset", {
+        method: "POST",
+      });
       setLogs([]);
     } catch (error) {
       console.error("Error resetting:", error);
@@ -131,21 +137,45 @@ function CityDashboard() {
   const totalBeds = state?.city?.totalResources?.beds?.total || 180;
   const usedBeds = state?.city?.totalResources?.beds?.used || 0;
   const availableBeds = totalBeds - usedBeds;
-  const bedUtilization = totalBeds > 0 ? Math.round((usedBeds / totalBeds) * 100) : 0;
+  const bedUtilization =
+    totalBeds > 0 ? Math.round((usedBeds / totalBeds) * 100) : 0;
 
   const diseases = state?.diseases || {};
-  const totalActiveCases = Object.values(diseases).reduce((sum, d) => sum + (d.activeCases || 0), 0);
+  const totalActiveCases = Object.values(diseases).reduce(
+    (sum, d) => sum + (d.activeCases || 0),
+    0
+  );
 
   const getRiskColor = (risk) => {
     switch (risk) {
-      case 'critical':
-        return { bg: 'bg-red-900/30', border: 'border-red-700', text: 'text-red-400', emoji: '🔴' };
-      case 'high':
-        return { bg: 'bg-orange-900/30', border: 'border-orange-700', text: 'text-orange-400', emoji: '🟠' };
-      case 'medium':
-        return { bg: 'bg-yellow-900/30', border: 'border-yellow-700', text: 'text-yellow-400', emoji: '🟡' };
+      case "critical":
+        return {
+          bg: "bg-red-900/30",
+          border: "border-red-700",
+          text: "text-red-400",
+          emoji: "🔴",
+        };
+      case "high":
+        return {
+          bg: "bg-orange-900/30",
+          border: "border-orange-700",
+          text: "text-orange-400",
+          emoji: "🟠",
+        };
+      case "medium":
+        return {
+          bg: "bg-yellow-900/30",
+          border: "border-yellow-700",
+          text: "text-yellow-400",
+          emoji: "🟡",
+        };
       default:
-        return { bg: 'bg-green-900/30', border: 'border-green-700', text: 'text-green-400', emoji: '🟢' };
+        return {
+          bg: "bg-green-900/30",
+          border: "border-green-700",
+          text: "text-green-400",
+          emoji: "🟢",
+        };
     }
   };
 
@@ -173,8 +203,12 @@ function CityDashboard() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm font-bold text-purple-300">{user?.name || 'City Admin'}</p>
-                <p className="text-[10px] text-slate-400">{user?.role || 'CITY'}</p>
+                <p className="text-sm font-bold text-purple-300">
+                  {user?.name || "City Admin"}
+                </p>
+                <p className="text-[10px] text-slate-400">
+                  {user?.role || "CITY"}
+                </p>
               </div>
               <button
                 onClick={logout}
@@ -188,37 +222,41 @@ function CityDashboard() {
           {/* Scenario Control Panel */}
           <div className="mt-4 bg-slate-800/50 rounded-lg p-4 border border-slate-700">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-300">🎮 Scenario Controls</h3>
+              <h3 className="text-sm font-bold text-slate-300">
+                🎮 Scenario Controls
+              </h3>
               <div className="flex gap-2">
                 <button
-                  onClick={() => triggerScenario('dengue')}
+                  onClick={() => triggerScenario("dengue")}
                   className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-xs transition"
                 >
                   🦟 Dengue
                 </button>
                 <button
-                  onClick={() => triggerScenario('malaria')}
+                  onClick={() => triggerScenario("malaria")}
                   className="bg-orange-600 hover:bg-orange-700 px-3 py-1 rounded text-xs transition"
                 >
                   🦟 Malaria
                 </button>
                 <button
-                  onClick={() => triggerScenario('covid')}
+                  onClick={() => triggerScenario("covid")}
                   className="bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-xs transition"
                 >
                   😷 COVID
                 </button>
                 <button
-                  onClick={() => triggerScenario('heatwave')}
+                  onClick={() => triggerScenario("heatwave")}
                   className="bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded text-xs transition"
                 >
                   ☀️ Heatwave
                 </button>
                 <button
                   onClick={startAutoDemo}
-                  className={`${autoDemoActive ? 'bg-green-600' : 'bg-blue-600'} hover:opacity-80 px-3 py-1 rounded text-xs transition flex items-center gap-1`}
+                  className={`${
+                    autoDemoActive ? "bg-green-600" : "bg-blue-600"
+                  } hover:opacity-80 px-3 py-1 rounded text-xs transition flex items-center gap-1`}
                 >
-                  {autoDemoActive ? '⏹️ Stop' : '▶️ Auto Demo'}
+                  {autoDemoActive ? "⏹️ Stop" : "▶️ Auto Demo"}
                 </button>
                 <button
                   onClick={resetSystem}
@@ -230,7 +268,8 @@ function CityDashboard() {
             </div>
             {autoDemoActive && (
               <p className="text-xs text-green-400 mt-2 text-center animate-pulse">
-                🎬 Auto-demo running: {currentScenario.toUpperCase()} → Next scenario in 30s
+                🎬 Auto-demo running: {currentScenario.toUpperCase()} → Next
+                scenario in 30s
               </p>
             )}
           </div>
@@ -259,15 +298,23 @@ function CityDashboard() {
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg p-4 border border-blue-400">
                 <div className="text-3xl mb-1">🛏️</div>
-                <div className="text-3xl font-bold text-white">{availableBeds}</div>
+                <div className="text-3xl font-bold text-white">
+                  {availableBeds}
+                </div>
                 <div className="text-xs text-white/80 mt-1">Beds Available</div>
-                <div className="text-[10px] text-white/60 mt-1">{bedUtilization}% utilized</div>
+                <div className="text-[10px] text-white/60 mt-1">
+                  {bedUtilization}% utilized
+                </div>
               </div>
               <div className="bg-gradient-to-br from-red-600 to-pink-600 rounded-lg p-4 border border-red-400">
                 <div className="text-3xl mb-1">🦠</div>
-                <div className="text-3xl font-bold text-white">{totalActiveCases}</div>
+                <div className="text-3xl font-bold text-white">
+                  {totalActiveCases}
+                </div>
                 <div className="text-xs text-white/80 mt-1">Active Cases</div>
-                <div className="text-[10px] text-white/60 mt-1">5 diseases tracked</div>
+                <div className="text-[10px] text-white/60 mt-1">
+                  5 diseases tracked
+                </div>
               </div>
             </div>
 
@@ -278,21 +325,27 @@ function CityDashboard() {
                 <div className="space-y-2">
                   {Object.entries(state.city.zones).map(([zoneId, zone]) => {
                     const riskData = state.city.riskZones?.[zoneId];
-                    const riskLevel = riskData?.overall || 'low';
+                    const riskLevel = riskData?.overall || "low";
                     const colors = getRiskColor(riskLevel);
-                    
+
                     return (
                       <div
                         key={zoneId}
                         className={`${colors.bg} border ${colors.border} rounded p-3 flex items-center justify-between`}
                       >
                         <div>
-                          <p className="text-sm font-bold text-white">{zone.name}</p>
-                          <p className="text-[10px] text-slate-400">👥 {zone.population.toLocaleString()}</p>
+                          <p className="text-sm font-bold text-white">
+                            {zone.name}
+                          </p>
+                          <p className="text-[10px] text-slate-400">
+                            👥 {zone.population.toLocaleString()}
+                          </p>
                         </div>
                         <div className="text-right">
                           <div className="text-2xl">{colors.emoji}</div>
-                          <p className={`text-[9px] font-bold ${colors.text}`}>{riskLevel.toUpperCase()}</p>
+                          <p className={`text-[9px] font-bold ${colors.text}`}>
+                            {riskLevel.toUpperCase()}
+                          </p>
                         </div>
                       </div>
                     );
@@ -322,4 +375,3 @@ function CityDashboard() {
 }
 
 export default CityDashboard;
-
