@@ -1,16 +1,18 @@
 // backend/agents/SupplierAgent.js
-const { subscribe, publish } = require('../eventBus');
-const EVENTS = require('../constants/events');
+const { subscribe, publish } = require("../eventBus");
+const EVENTS = require("../constants/events");
 
 class SupplierAgent {
   constructor(id, worldState, log) {
     this.id = id;
     this.worldState = worldState;
     this.log = log;
+    this.ML_SERVICE_URL = "http://localhost:8000"; // Python ML service
 
-    subscribe('MEDICINE_SHORTAGE_RISK', this.onMedicineShortage.bind(this));
-    subscribe('HOSPITAL_OVERLOAD_RISK', this.onHospitalOverload.bind(this));
-    subscribe('EQUIPMENT_SHORTAGE', this.onEquipmentShortage.bind(this));
+    subscribe("MEDICINE_SHORTAGE_RISK", this.onMedicineShortage.bind(this));
+    subscribe("HOSPITAL_OVERLOAD_RISK", this.onHospitalOverload.bind(this));
+    subscribe("EQUIPMENT_SHORTAGE", this.onEquipmentShortage.bind(this));
+    subscribe("HOSPITAL_RESOURCE_REQUEST", this.onResourceRequest.bind(this));
   }
 
   start() {
@@ -20,66 +22,186 @@ class SupplierAgent {
     const vehicleCount = Object.keys(s.fleet || {}).length;
     this.log(
       `✅ Supplier Agent ${this.id} (${s.name}) initialized - ${itemCount} items in warehouse | ${vehicleCount} vehicles`,
-      { agent: 'Supplier', type: 'INIT', entityId: this.id }
+      { agent: "Supplier", type: "INIT", entityId: this.id }
     );
 
     // Periodic inventory check every 15 seconds (faster for demo)
     setInterval(() => this.tick(), 15000);
   }
 
-  tick() {
+  async tick() {
     const s = this.worldState.suppliers[this.id];
     if (!s) return;
 
     // Count low inventory items
     const lowStockItems = Object.entries(s.inventory).filter(([_, item]) => {
       const stock = item.stock || item;
-      return typeof stock === 'number' && stock < 100;
+      return typeof stock === "number" && stock < 100;
     }).length;
 
     // Count active orders
     const activeOrders = s.activeOrders?.length || 0;
-    
+
     // Count available vehicles
-    const availableVehicles = s.fleet ? 
-      Object.values(s.fleet).filter(v => v.status === 'available').length : 0;
+    const availableVehicles = s.fleet
+      ? Object.values(s.fleet).filter((v) => v.status === "available").length
+      : 0;
     const totalVehicles = s.fleet ? Object.keys(s.fleet).length : 0;
 
     // ALWAYS log current status
-    const status = activeOrders > 2 ? '🟡 BUSY' : '🟢 READY';
+    const status = activeOrders > 2 ? "🟡 BUSY" : "🟢 READY";
     this.log(
       `${s.name}: ${status} | ${activeOrders} active orders | ${lowStockItems} low stock alerts | ${availableVehicles}/${totalVehicles} vehicles ready`,
-      { agent: 'Supplier', type: 'STATUS', entityId: this.id, activeOrders, lowStockItems }
+      {
+        agent: "Supplier",
+        type: "STATUS",
+        entityId: this.id,
+        activeOrders,
+        lowStockItems,
+      }
     );
 
     // Check for low inventory levels
     this.checkInventoryLevels(s);
-    
-    // Process pending orders
-    this.processActiveOrders(s);
+
+    // 🤖 ML-POWERED: Process orders with intelligent prioritization
+    await this.processActiveOrdersWithML(s);
   }
 
   checkInventoryLevels(supplier) {
-    Object.keys(supplier.inventory).forEach(item => {
+    Object.keys(supplier.inventory).forEach((item) => {
       const itemData = supplier.inventory[item];
       const stock = itemData.stock || itemData; // Handle both object and number formats
-      
-      if (typeof stock === 'number' && stock < 100) {
+
+      if (typeof stock === "number" && stock < 100) {
         this.log(
           `[Supplier ${this.id}] Low inventory warning: ${item} = ${stock} units`,
-          { agent: 'Supplier', type: 'LOW_INVENTORY', item, stock }
+          { agent: "Supplier", type: "LOW_INVENTORY", item, stock }
         );
       }
     });
+  }
+
+  async processActiveOrdersWithML(supplier) {
+    /**
+     * 🤖 ML-POWERED ORDER PRIORITIZATION
+     * Uses Python FastAPI ML service for intelligent order fulfillment
+     * Formula: Priority_Score = (Strain×0.4) + (Criticality×0.3) + (Urgency×0.3)
+     */
+
+    if (!supplier.activeOrders || supplier.activeOrders.length === 0) return;
+
+    try {
+      // Prepare orders for ML service
+      const orders = supplier.activeOrders.map((order) => ({
+        order_id: order.orderId || `ORD-${Date.now()}`,
+        requester_id: order.pharmacyId || order.hospitalId || "unknown",
+        requester_type: order.hospitalId ? "hospital" : "pharmacy",
+        medicine: order.medicine || order.item,
+        quantity: order.quantity || 0,
+        urgency: order.urgency || "medium",
+        criticality: order.criticality || "medium",
+        zone: order.zone || "unknown",
+        requester_strain: order.requesterStrain || 0.5, // Default 50% if not provided
+      }));
+
+      // Call Python ML service
+      const response = await fetch(`${this.ML_SERVICE_URL}/prioritize/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          supplier_id: this.id,
+          orders: orders,
+          available_inventory: supplier.inventory,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`ML Service error: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Log ML prediction
+      this.log(
+        `🤖 ML ORDER PRIORITIZATION: ${supplier.name} | ${
+          result.total_orders
+        } orders | ${
+          result.fulfilled_count
+        } fulfilled (${result.fulfillment_rate.toFixed(1)}%)`,
+        {
+          agent: "Supplier",
+          type: `ML_ORDER_PRIORITY`,
+          entityId: this.id,
+          totalOrders: result.total_orders,
+          fulfilled: result.fulfilled_count,
+          fulfillmentRate: result.fulfillment_rate,
+          mlPowered: true,
+        }
+      );
+
+      // Process prioritized orders
+      result.prioritized_orders.forEach((prioritizedOrder, index) => {
+        if (prioritizedOrder.fulfillment_status === "fulfilled") {
+          this.log(
+            `✅ ${supplier.name}: Order #${
+              index + 1
+            } (Priority: ${prioritizedOrder.priority_score.toFixed(1)}) - ${
+              prioritizedOrder.medicine
+            } to ${
+              prioritizedOrder.requester_id
+            } | Status: ${prioritizedOrder.fulfillment_status.toUpperCase()}`,
+            {
+              agent: "Supplier",
+              type: `ML_ORDER_FULFILLED`,
+              entityId: this.id,
+              orderId: prioritizedOrder.order_id,
+              priority: prioritizedOrder.priority_score,
+              medicine: prioritizedOrder.medicine,
+            }
+          );
+        } else {
+          this.log(
+            `⏳ ${supplier.name}: Order #${
+              index + 1
+            } (Priority: ${prioritizedOrder.priority_score.toFixed(1)}) - ${
+              prioritizedOrder.medicine
+            } | Status: ${prioritizedOrder.fulfillment_status.toUpperCase()} - ${
+              prioritizedOrder.reason
+            }`,
+            {
+              agent: "Supplier",
+              type: `ML_ORDER_PENDING`,
+              entityId: this.id,
+              orderId: prioritizedOrder.order_id,
+              priority: prioritizedOrder.priority_score,
+              reason: prioritizedOrder.reason,
+            }
+          );
+        }
+      });
+    } catch (error) {
+      // Fallback: Use rule-based prioritization if ML service unavailable
+      this.log(
+        `⚠️ ML service unavailable for ${supplier.name}, using fallback prioritization: ${error.message}`,
+        {
+          agent: "Supplier",
+          type: "ML_FALLBACK",
+          entityId: this.id,
+          error: error.message,
+        }
+      );
+      this.processActiveOrders(supplier);
+    }
   }
 
   processActiveOrders(supplier) {
     if (supplier.activeOrders && supplier.activeOrders.length > 0) {
       // Sort orders by priority (urgency and criticality)
       const prioritizedOrders = this.prioritizeOrders(supplier.activeOrders);
-      
+
       // Process top priority orders
-      prioritizedOrders.slice(0, 3).forEach(order => {
+      prioritizedOrders.slice(0, 3).forEach((order) => {
         this.fulfillOrder(supplier, order);
       });
     }
@@ -96,54 +218,141 @@ class SupplierAgent {
 
   calculateOrderPriority(order) {
     let score = 0;
-    
+
     // Urgency scoring
-    if (order.urgency === 'high') score += 50;
-    else if (order.urgency === 'medium') score += 30;
+    if (order.urgency === "high") score += 50;
+    else if (order.urgency === "medium") score += 30;
     else score += 10;
-    
+
     // Criticality scoring
-    if (order.criticality === 'high') score += 30;
-    else if (order.criticality === 'medium') score += 15;
-    
+    if (order.criticality === "high") score += 30;
+    else if (order.criticality === "medium") score += 15;
+
     // Zone risk (if available)
-    if (order.zoneRisk === 'high') score += 20;
-    
+    if (order.zoneRisk === "high") score += 20;
+
     // From hospital vs pharmacy (hospitals get priority)
     if (order.hospitalId) score += 15;
-    
+
     return score;
+  }
+
+  onResourceRequest(event) {
+    const s = this.worldState.suppliers[this.id];
+    if (!s) return;
+
+    const {
+      hospitalId,
+      hospitalName,
+      zone,
+      recommendations,
+      hsi,
+      strainLevel,
+      mlPowered,
+    } = event;
+
+    this.log(
+      `📥 ${
+        s.name
+      }: ${strainLevel} PRIORITY resource request from ${hospitalName} (HSI: ${
+        hsi?.toFixed(1) || "N/A"
+      }) - ${recommendations?.join(", ") || "General supplies"}`,
+      {
+        agent: "Supplier",
+        type: "RESOURCE_REQUEST",
+        entityId: this.id,
+        hospitalId,
+        zone,
+        strainLevel,
+      }
+    );
+
+    // Add to active orders with high priority
+    if (recommendations && recommendations.length > 0) {
+      recommendations.forEach((recommendation) => {
+        // Extract resource type from recommendation text
+        let resourceType = "medical_supplies";
+        if (recommendation.toLowerCase().includes("bed")) resourceType = "beds";
+        else if (recommendation.toLowerCase().includes("staff"))
+          resourceType = "staff";
+        else if (recommendation.toLowerCase().includes("equipment"))
+          resourceType = "equipment";
+
+        const order = {
+          orderId: `HSP-${Date.now()}-${Math.random()
+            .toString(36)
+            .substr(2, 9)}`,
+          hospitalId,
+          item: resourceType,
+          quantity: 10, // Default quantity
+          zone,
+          urgency:
+            strainLevel === "CRITICAL"
+              ? "high"
+              : strainLevel === "ELEVATED"
+              ? "medium"
+              : "low",
+          criticality: "high",
+          requesterStrain: hsi ? hsi / 100 : 0.6,
+          status: "pending",
+          timestamp: new Date().toISOString(),
+          mlPowered,
+        };
+
+        s.activeOrders = s.activeOrders || [];
+        s.activeOrders.push(order);
+      });
+    }
   }
 
   onMedicineShortage(event) {
     const s = this.worldState.suppliers[this.id];
     if (!s) return;
 
-    const { 
-      medicine, 
-      zone, 
+    const {
+      medicine,
+      zone,
       pharmacyId,
       pharmacyName,
-      stock, 
-      orderQuantity, 
-      urgency, 
+      stock,
+      orderQuantity,
+      urgency,
       criticality,
-      supplier 
+      supplier,
     } = event;
 
     // Check if we're the designated supplier for this pharmacy
     if (supplier && supplier !== this.id) return;
 
     this.log(
-      `📥 ${s.name}: ${urgency?.toUpperCase() || 'NORMAL'} PRIORITY order received from ${pharmacyName || 'Pharmacy'} - ${medicine} (${orderQuantity} units needed)`,
-      { agent: 'Supplier', type: 'ORDER_RECEIVED', entityId: this.id, pharmacyId, medicine, zone, urgency }
+      `📥 ${s.name}: ${
+        urgency?.toUpperCase() || "NORMAL"
+      } PRIORITY order received from ${
+        pharmacyName || "Pharmacy"
+      } - ${medicine} (${orderQuantity} units needed)`,
+      {
+        agent: "Supplier",
+        type: "ORDER_RECEIVED",
+        entityId: this.id,
+        pharmacyId,
+        medicine,
+        zone,
+        urgency,
+      }
     );
 
     const itemData = s.inventory[medicine];
     if (!itemData) {
       this.log(
         `❌ ${s.name}: Cannot fulfill order - ${medicine} not in our inventory catalog`,
-        { agent: 'Supplier', type: 'NOT_AVAILABLE', entityId: this.id, pharmacyId, medicine, zone }
+        {
+          agent: "Supplier",
+          type: "NOT_AVAILABLE",
+          entityId: this.id,
+          pharmacyId,
+          medicine,
+          zone,
+        }
       );
       return;
     }
@@ -151,16 +360,25 @@ class SupplierAgent {
     const available = itemData.stock || itemData;
     if (available <= 0) {
       this.log(
-        `❌ ${s.name}: Cannot supply ${medicine} to ${pharmacyName || 'Pharmacy'} - OUT OF STOCK`,
-        { agent: 'Supplier', type: 'NO_SUPPLY', entityId: this.id, pharmacyId, medicine, zone }
+        `❌ ${s.name}: Cannot supply ${medicine} to ${
+          pharmacyName || "Pharmacy"
+        } - OUT OF STOCK`,
+        {
+          agent: "Supplier",
+          type: "NO_SUPPLY",
+          entityId: this.id,
+          pharmacyId,
+          medicine,
+          zone,
+        }
       );
-      
-      publish('SUPPLY_UNAVAILABLE', {
+
+      publish("SUPPLY_UNAVAILABLE", {
         supplierId: this.id,
         supplierName: s.name,
         pharmacyId,
         medicine,
-        zone
+        zone,
       });
       return;
     }
@@ -170,7 +388,7 @@ class SupplierAgent {
     const quantity = Math.min(available, requestedQty);
 
     // Update inventory
-    if (typeof itemData === 'object') {
+    if (typeof itemData === "object") {
       itemData.stock -= quantity;
     } else {
       s.inventory[medicine] -= quantity;
@@ -182,30 +400,32 @@ class SupplierAgent {
     const remainingStock = itemData.stock || s.inventory[medicine];
     this.log(
       `✅ ${s.name}: Order CONFIRMED - Dispatching ${quantity} units of ${medicine} to ${zone} | ETA: ${eta}h | Warehouse remaining: ${remainingStock} units`,
-      { 
-        agent: 'Supplier', 
-        type: 'SUPPLY_CONFIRMED', 
+      {
+        agent: "Supplier",
+        type: "SUPPLY_CONFIRMED",
         entityId: this.id,
-        pharmacyId, 
-        medicine, 
-        quantity, 
+        pharmacyId,
+        medicine,
+        quantity,
         zone,
         urgency,
-        eta
+        eta,
       }
     );
 
     // Log coordination message
     this.log(
-      `📡 ${s.name}: Confirming delivery to ${pharmacyName || 'pharmacy'} - ${quantity} units of ${medicine} dispatched to ${zone}`,
-      { 
-        agent: 'Supplier', 
-        type: 'COORDINATION', 
+      `📡 ${s.name}: Confirming delivery to ${
+        pharmacyName || "pharmacy"
+      } - ${quantity} units of ${medicine} dispatched to ${zone}`,
+      {
+        agent: "Supplier",
+        type: "COORDINATION",
         entityId: this.id,
         recipient: pharmacyName || pharmacyId,
         medicine,
         quantity,
-        zone
+        zone,
       }
     );
 
@@ -218,28 +438,28 @@ class SupplierAgent {
       zone,
       urgency,
       criticality,
-      status: 'dispatched',
+      status: "dispatched",
       timestamp: new Date().toISOString(),
-      eta: `${eta} hours`
+      eta: `${eta} hours`,
     };
     s.activeOrders.push(order);
 
     // Publish confirmation
-    publish('SUPPLY_CONFIRMED', {
+    publish("SUPPLY_CONFIRMED", {
       supplierId: this.id,
       pharmacyId,
       medicine,
       quantity,
       zone,
       eta: `${eta} hours`,
-      orderId: order.orderId
+      orderId: order.orderId,
     });
 
     // Allocate delivery vehicle
     if (s.fleet && s.fleet.available > 0) {
       s.fleet.available--;
       s.fleet.inTransit++;
-      
+
       // Simulate delivery completion (in real system, this would be actual tracking)
       setTimeout(() => {
         this.completeDelivery(s, order);
@@ -249,11 +469,12 @@ class SupplierAgent {
 
   calculateDeliveryETA(supplier, zone) {
     if (!supplier.fleet) return 2; // Default 2 hours
-    
+
     const baseTime = supplier.fleet.avgDeliveryTime || 2;
     // Add delay if fleet is busy
-    const utilizationFactor = supplier.fleet.inTransit / supplier.fleet.vehicles;
-    return baseTime + (utilizationFactor * 0.5);
+    const utilizationFactor =
+      supplier.fleet.inTransit / supplier.fleet.vehicles;
+    return baseTime + utilizationFactor * 0.5;
   }
 
   completeDelivery(supplier, order) {
@@ -264,10 +485,12 @@ class SupplierAgent {
     }
 
     // Update order status
-    const orderIndex = supplier.activeOrders.findIndex(o => o.orderId === order.orderId);
+    const orderIndex = supplier.activeOrders.findIndex(
+      (o) => o.orderId === order.orderId
+    );
     if (orderIndex >= 0) {
-      supplier.activeOrders[orderIndex].status = 'delivered';
-      
+      supplier.activeOrders[orderIndex].status = "delivered";
+
       // Remove after 1 minute (keep for reference briefly)
       setTimeout(() => {
         supplier.activeOrders.splice(orderIndex, 1);
@@ -276,21 +499,21 @@ class SupplierAgent {
 
     this.log(
       `[Supplier ${this.id}] Delivery completed: ${order.medicine} to Pharmacy ${order.pharmacyId}`,
-      { agent: 'Supplier', type: 'DELIVERY_COMPLETE', orderId: order.orderId }
+      { agent: "Supplier", type: "DELIVERY_COMPLETE", orderId: order.orderId }
     );
 
-    publish('DELIVERY_COMPLETE', {
+    publish("DELIVERY_COMPLETE", {
       supplierId: this.id,
       orderId: order.orderId,
       pharmacyId: order.pharmacyId,
-      medicine: order.medicine
+      medicine: order.medicine,
     });
   }
 
   fulfillOrder(supplier, order) {
     // Process orders from activeOrders array
-    if (order.status === 'dispatched' || order.status === 'delivered') return;
-    
+    if (order.status === "dispatched" || order.status === "delivered") return;
+
     // Similar logic to onMedicineShortage
     const itemData = supplier.inventory[order.medicine];
     if (!itemData) return;
@@ -299,14 +522,14 @@ class SupplierAgent {
     if (available <= 0) return;
 
     const quantity = Math.min(available, order.quantity);
-    
-    if (typeof itemData === 'object') {
+
+    if (typeof itemData === "object") {
       itemData.stock -= quantity;
     } else {
       supplier.inventory[order.medicine] -= quantity;
     }
 
-    order.status = 'dispatched';
+    order.status = "dispatched";
     order.actualQuantity = quantity;
   }
 
@@ -318,17 +541,30 @@ class SupplierAgent {
 
     // Check if we have critical equipment available
     const ventilators = s.inventory.ventilators;
-    const hasVentilators = ventilators && (ventilators.stock || ventilators) > 0;
+    const hasVentilators =
+      ventilators && (ventilators.stock || ventilators) > 0;
 
     if (hasVentilators) {
       this.log(
-        `[Supplier ${this.id}] Hospital ${name || hospitalId} overload detected (${Math.round(occupancy * 100)}% occupancy). Ventilators available for priority supply.`,
-        { agent: 'Supplier', type: 'OVERLOAD_RESPONSE', hospitalId, zone, hasVentilators }
+        `[Supplier ${this.id}] Hospital ${
+          name || hospitalId
+        } overload detected (${Math.round(
+          occupancy * 100
+        )}% occupancy). Ventilators available for priority supply.`,
+        {
+          agent: "Supplier",
+          type: "OVERLOAD_RESPONSE",
+          hospitalId,
+          zone,
+          hasVentilators,
+        }
       );
     } else {
       this.log(
-        `[Supplier ${this.id}] Hospital ${name || hospitalId} overload noted but no ventilators available.`,
-        { agent: 'Supplier', type: 'OVERLOAD_NOTICE', hospitalId, zone }
+        `[Supplier ${this.id}] Hospital ${
+          name || hospitalId
+        } overload noted but no ventilators available.`,
+        { agent: "Supplier", type: "OVERLOAD_NOTICE", hospitalId, zone }
       );
     }
   }
@@ -338,22 +574,31 @@ class SupplierAgent {
     if (!s) return;
 
     const { hospitalId, zone, equipment, available, total } = event;
-    
+
     const equipmentData = s.inventory[equipment];
     if (!equipmentData) return;
 
     const stock = equipmentData.stock || equipmentData;
     if (stock > 0) {
       // Can supply equipment
-      const quantityToSend = Math.min(stock, Math.ceil((total - available) * 0.5));
-      
+      const quantityToSend = Math.min(
+        stock,
+        Math.ceil((total - available) * 0.5)
+      );
+
       this.log(
         `[Supplier ${this.id}] Critical ${equipment} shortage at Hospital ${hospitalId}. Preparing ${quantityToSend} units for priority delivery.`,
-        { agent: 'Supplier', type: 'EQUIPMENT_SUPPLY', hospitalId, equipment, quantity: quantityToSend }
+        {
+          agent: "Supplier",
+          type: "EQUIPMENT_SUPPLY",
+          hospitalId,
+          equipment,
+          quantity: quantityToSend,
+        }
       );
 
       // In a real system, this would trigger equipment delivery
-      if (typeof equipmentData === 'object') {
+      if (typeof equipmentData === "object") {
         equipmentData.stock -= quantityToSend;
       } else {
         s.inventory[equipment] -= quantityToSend;
