@@ -1,9 +1,12 @@
 // frontend/src/pages/PublicDashboard.jsx
 import { useEffect, useState } from "react";
 import HealthHeatmap from "../components/HealthHeatmap";
+import DiseasePrevalenceHeatmap from "../components/DiseasePrevalenceHeatmap";
 import ActiveAlerts from "../components/ActiveAlerts";
 import CityStatistics from "../components/CityStatistics";
 import LoginModal from "../components/LoginModal";
+import HealthNewsSection from "../components/HealthNewsSection";
+import WeatherHealthRisk from "../components/WeatherHealthRisk";
 
 function PublicDashboard() {
   const [cityData, setCityData] = useState(null);
@@ -38,7 +41,7 @@ function PublicDashboard() {
             </h1>
             <p className="text-sm text-slate-400">Public Health Dashboard</p>
           </div>
-          
+
           {/* Login and Register buttons */}
           <div className="flex gap-3">
             <a
@@ -76,13 +79,16 @@ function PublicDashboard() {
         <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-700/50 rounded-lg p-6 mb-8">
           <div className="flex items-center gap-3 mb-3">
             <span className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
-            <h3 className="text-lg font-semibold text-green-300">System Active</h3>
+            <h3 className="text-lg font-semibold text-green-300">
+              System Active
+            </h3>
           </div>
           <p className="text-slate-300">
             All healthcare agents are operational and coordinating in real-time.
             {cityData?.city?.totalResources && (
               <span className="ml-2">
-                {cityData.city.totalResources.beds.available} beds available citywide.
+                {cityData.city.totalResources.beds.available} beds available
+                citywide.
               </span>
             )}
           </p>
@@ -91,17 +97,29 @@ function PublicDashboard() {
         {/* Interactive Health Heatmap */}
         <HealthHeatmap cityData={cityData} />
 
+        {/* Disease Prevalence Heatmap */}
+        <DiseasePrevalenceHeatmap />
+
         {/* Active Health Alerts */}
         <ActiveAlerts cityData={cityData} />
 
         {/* City Statistics */}
         <CityStatistics cityData={cityData} />
 
+        {/* Weather-Driven Disease Predictor */}
+        <WeatherHealthRisk />
+
+        {/* Latest Health News */}
+        <HealthNewsSection />
+
         {/* Call to Action */}
         <div className="text-center bg-slate-800 rounded-lg p-8">
-          <h3 className="text-2xl font-bold mb-4">For Healthcare Professionals</h3>
+          <h3 className="text-2xl font-bold mb-4">
+            For Healthcare Professionals
+          </h3>
           <p className="text-slate-300 mb-6">
-            Access your role-specific dashboard to monitor operations, view agent actions, and coordinate resources.
+            Access your role-specific dashboard to monitor operations, view
+            agent actions, and coordinate resources.
           </p>
           <button
             onClick={() => setShowLoginModal(true)}
@@ -121,13 +139,12 @@ function PublicDashboard() {
       </footer>
 
       {/* Login Modal */}
-      <LoginModal 
-        isOpen={showLoginModal} 
-        onClose={() => setShowLoginModal(false)} 
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
       />
     </div>
   );
 }
 
 export default PublicDashboard;
-
