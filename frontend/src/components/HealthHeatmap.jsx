@@ -13,7 +13,7 @@ function HealthHeatmap({ cityData }) {
     );
   }
 
-  const { zones, riskZones } = cityData.city;
+  const { zones = {}, riskZones = {} } = cityData.city || {};
 
   const getRiskColor = (riskLevel) => {
     switch (riskLevel) {
@@ -46,8 +46,8 @@ function HealthHeatmap({ cityData }) {
   };
 
   const getDiseaseRisks = (zoneId) => {
-    const risks = riskZones[zoneId];
-    if (!risks) return [];
+    const risks = riskZones?.[zoneId];
+    if (!risks || !risks.diseases) return [];
     
     return Object.entries(risks)
       .filter(([key, value]) => 
@@ -66,8 +66,8 @@ function HealthHeatmap({ cityData }) {
       {/* Zone Cards Grid */}
       <div className="grid md:grid-cols-3 gap-6 mb-6">
         {zones && Object.entries(zones).map(([zoneId, zone]) => {
-          const riskData = riskZones[zoneId];
-          const overallRisk = riskData?.overall || 'low';
+          const riskData = riskZones?.[zoneId] || {};
+          const overallRisk = riskData?.overall || zone?.overallRisk || 'low';
           const colors = getRiskColor(overallRisk);
           const diseaseRisks = getDiseaseRisks(zoneId);
           const isSelected = selectedZone === zoneId;

@@ -1,0 +1,78 @@
+[
+  {
+    "name": "MediCare Pharmacy",
+    "email": "medicare@healsync.com",
+    "phone": "+91-9876543410",
+    "zone": "Zone-1",
+    "address": "Lokhandwala Complex, Andheri West, Mumbai",
+    "coordinates": { "lat": 19.1367, "lng": 72.8340 },
+    "type": "Retail Pharmacy",
+    "storageCapacity": {
+      "refrigerated": { "capacity": 500 },
+      "controlled": { "capacity": 300 },
+      "general": { "capacity": 1000 }
+    },
+    "medicines": {
+      "dengueMed": { "stock": 500, "reorderLevel": 100, "dailyUsage": 30, "criticality": "high", "supplier": "MediSupply Co." },
+      "chloroquine": { "stock": 300, "reorderLevel": 80, "dailyUsage": 20, "criticality": "high", "supplier": "MediSupply Co." },
+      "paracetamol": { "stock": 1000, "reorderLevel": 300, "dailyUsage": 150, "criticality": "medium", "supplier": "MediSupply Co." },
+      "oseltamivir": { "stock": 200, "reorderLevel": 50, "dailyUsage": 15, "criticality": "high", "supplier": "PharmaCorp Distributors" },
+      "ceftriaxone": { "stock": 250, "reorderLevel": 70, "dailyUsage": 25, "criticality": "high", "supplier": "QuickMed Distributors" }
+    },
+    "staff": {
+      "pharmacists": { "total": 5 },
+      "assistants": { "total": 10 }
+    }
+  },
+  {
+    "name": "HealthPlus Pharmacy",
+    "email": "healthplus@healsync.com",
+    "phone": "+91-9876543420",
+    "zone": "Zone-2",
+    "address": "Bandra West, Mumbai",
+    "coordinates": { "lat": 19.0596, "lng": 72.8295 },
+    "type": "Retail Pharmacy",
+    "storageCapacity": {
+      "refrigerated": { "capacity": 600 },
+      "controlled": { "capacity": 350 },
+      "general": { "capacity": 1200 }
+    },
+    "medicines": {
+      "dengueMed": { "stock": 600, "reorderLevel": 120, "dailyUsage": 35, "criticality": "high", "supplier": "PharmaCorp Distributors" },
+      "chloroquine": { "stock": 350, "reorderLevel": 90, "dailyUsage": 22, "criticality": "high", "supplier": "QuickMed Distributors" },
+      "paracetamol": { "stock": 1200, "reorderLevel": 350, "dailyUsage": 180, "criticality": "medium", "supplier": "MediSupply Co." },
+      "oseltamivir": { "stock": 250, "reorderLevel": 60, "dailyUsage": 18, "criticality": "high", "supplier": "PharmaCorp Distributors" },
+      "ceftriaxone": { "stock": 300, "reorderLevel": 80, "dailyUsage": 28, "criticality": "high", "supplier": "QuickMed Distributors" }
+    },
+    "staff": {
+      "pharmacists": { "total": 6 },
+      "assistants": { "total": 12 }
+    }
+  },
+  {
+    "name": "Express Pharmacy",
+    "email": "express@healsync.com",
+    "phone": "+91-9876543430",
+    "zone": "Zone-3",
+    "address": "Powai Plaza, Mumbai",
+    "coordinates": { "lat": 19.1176, "lng": 72.9060 },
+    "type": "Retail Pharmacy",
+    "storageCapacity": {
+      "refrigerated": { "capacity": 450 },
+      "controlled": { "capacity": 280 },
+      "general": { "capacity": 900 }
+    },
+    "medicines": {
+      "dengueMed": { "stock": 450, "reorderLevel": 90, "dailyUsage": 28, "criticality": "high", "supplier": "MediSupply Co." },
+      "chloroquine": { "stock": 280, "reorderLevel": 75, "dailyUsage": 18, "criticality": "high", "supplier": "PharmaCorp Distributors" },
+      "paracetamol": { "stock": 900, "reorderLevel": 280, "dailyUsage": 140, "criticality": "medium", "supplier": "QuickMed Distributors" },
+      "oseltamivir": { "stock": 180, "reorderLevel": 45, "dailyUsage": 14, "criticality": "high", "supplier": "PharmaCorp Distributors" },
+      "ceftriaxone": { "stock": 220, "reorderLevel": 65, "dailyUsage": 22, "criticality": "high", "supplier": "MediSupply Co." }
+    },
+    "staff": {
+      "pharmacists": { "total": 4 },
+      "assistants": { "total": 9 }
+    }
+  }
+]
+

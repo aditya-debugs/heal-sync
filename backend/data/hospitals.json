@@ -1,0 +1,283 @@
+[
+  {
+    "name": "City Central Hospital",
+    "email": "central@healsync.com",
+    "phone": "+91-9876543210",
+    "zone": "Zone-1",
+    "address": "Main Street, Andheri West, Mumbai",
+    "coordinates": { "lat": 19.1136, "lng": 72.8697 },
+    "type": "Multi-Specialty Hospital",
+    "beds": {
+      "general": { "total": 100 },
+      "icu": { "total": 20 },
+      "isolation": { "total": 30 },
+      "pediatric": { "total": 40 },
+      "maternity": { "total": 20 }
+    },
+    "equipment": {
+      "ventilators": { "total": 25 },
+      "oxygenCylinders": { "total": 100 },
+      "xrayMachines": { "total": 5 },
+      "ctScanners": { "total": 3 },
+      "ambulances": { "total": 8 }
+    },
+    "staff": {
+      "doctors": { "total": 50 },
+      "nurses": { "total": 120 },
+      "specialists": { "infectiousDisease": 8 }
+    }
+  },
+  {
+    "name": "Children's Wellness Hospital",
+    "email": "childrens@healsync.com",
+    "phone": "+91-9876543211",
+    "zone": "Zone-1",
+    "address": "Park Avenue, Juhu, Mumbai",
+    "coordinates": { "lat": 19.1075, "lng": 72.8263 },
+    "type": "Pediatric Hospital",
+    "beds": {
+      "general": { "total": 80 },
+      "icu": { "total": 15 },
+      "isolation": { "total": 25 },
+      "pediatric": { "total": 60 },
+      "maternity": { "total": 0 }
+    },
+    "equipment": {
+      "ventilators": { "total": 15 },
+      "oxygenCylinders": { "total": 80 },
+      "xrayMachines": { "total": 3 },
+      "ctScanners": { "total": 2 },
+      "ambulances": { "total": 5 }
+    },
+    "staff": {
+      "doctors": { "total": 35 },
+      "nurses": { "total": 90 },
+      "specialists": { "infectiousDisease": 5 }
+    }
+  },
+  {
+    "name": "Metro General Hospital",
+    "email": "metro@healsync.com",
+    "phone": "+91-9876543212",
+    "zone": "Zone-1",
+    "address": "Station Road, Versova, Mumbai",
+    "coordinates": { "lat": 19.1310, "lng": 72.8119 },
+    "type": "General Hospital",
+    "beds": {
+      "general": { "total": 70 },
+      "icu": { "total": 12 },
+      "isolation": { "total": 20 },
+      "pediatric": { "total": 25 },
+      "maternity": { "total": 15 }
+    },
+    "equipment": {
+      "ventilators": { "total": 12 },
+      "oxygenCylinders": { "total": 60 },
+      "xrayMachines": { "total": 2 },
+      "ctScanners": { "total": 1 },
+      "ambulances": { "total": 4 }
+    },
+    "staff": {
+      "doctors": { "total": 30 },
+      "nurses": { "total": 70 },
+      "specialists": { "infectiousDisease": 4 }
+    }
+  },
+  {
+    "name": "West Mumbai Medical Center",
+    "email": "westmumbai@healsync.com",
+    "phone": "+91-9876543213",
+    "zone": "Zone-1",
+    "address": "Link Road, Goregaon, Mumbai",
+    "coordinates": { "lat": 19.1550, "lng": 72.8486 },
+    "type": "Medical Center",
+    "beds": {
+      "general": { "total": 60 },
+      "icu": { "total": 10 },
+      "isolation": { "total": 15 },
+      "pediatric": { "total": 20 },
+      "maternity": { "total": 15 }
+    },
+    "equipment": {
+      "ventilators": { "total": 10 },
+      "oxygenCylinders": { "total": 50 },
+      "xrayMachines": { "total": 2 },
+      "ctScanners": { "total": 1 },
+      "ambulances": { "total": 3 }
+    },
+    "staff": {
+      "doctors": { "total": 25 },
+      "nurses": { "total": 60 },
+      "specialists": { "infectiousDisease": 3 }
+    }
+  },
+  {
+    "name": "Sunrise Hospital",
+    "email": "sunrise@healsync.com",
+    "phone": "+91-9876543220",
+    "zone": "Zone-2",
+    "address": "Marine Drive, South Mumbai",
+    "coordinates": { "lat": 18.9432, "lng": 72.8236 },
+    "type": "Multi-Specialty Hospital",
+    "beds": {
+      "general": { "total": 90 },
+      "icu": { "total": 18 },
+      "isolation": { "total": 20 },
+      "pediatric": { "total": 35 },
+      "maternity": { "total": 22 }
+    },
+    "equipment": {
+      "ventilators": { "total": 20 },
+      "oxygenCylinders": { "total": 90 },
+      "xrayMachines": { "total": 4 },
+      "ctScanners": { "total": 2 },
+      "ambulances": { "total": 6 }
+    },
+    "staff": {
+      "doctors": { "total": 45 },
+      "nurses": { "total": 100 },
+      "specialists": { "infectiousDisease": 7 }
+    }
+  },
+  {
+    "name": "Coastal Care Hospital",
+    "email": "coastal@healsync.com",
+    "phone": "+91-9876543221",
+    "zone": "Zone-2",
+    "address": "Worli Sea Face, Mumbai",
+    "coordinates": { "lat": 19.0176, "lng": 72.8156 },
+    "type": "General Hospital",
+    "beds": {
+      "general": { "total": 75 },
+      "icu": { "total": 14 },
+      "isolation": { "total": 18 },
+      "pediatric": { "total": 28 },
+      "maternity": { "total": 20 }
+    },
+    "equipment": {
+      "ventilators": { "total": 15 },
+      "oxygenCylinders": { "total": 70 },
+      "xrayMachines": { "total": 3 },
+      "ctScanners": { "total": 2 },
+      "ambulances": { "total": 5 }
+    },
+    "staff": {
+      "doctors": { "total": 38 },
+      "nurses": { "total": 85 },
+      "specialists": { "infectiousDisease": 6 }
+    }
+  },
+  {
+    "name": "Central Mumbai Hospital",
+    "email": "centralmumbai@healsync.com",
+    "phone": "+91-9876543222",
+    "zone": "Zone-2",
+    "address": "Dadar West, Mumbai",
+    "coordinates": { "lat": 19.0178, "lng": 72.8478 },
+    "type": "General Hospital",
+    "beds": {
+      "general": { "total": 65 },
+      "icu": { "total": 12 },
+      "isolation": { "total": 16 },
+      "pediatric": { "total": 22 },
+      "maternity": { "total": 18 }
+    },
+    "equipment": {
+      "ventilators": { "total": 12 },
+      "oxygenCylinders": { "total": 60 },
+      "xrayMachines": { "total": 2 },
+      "ctScanners": { "total": 1 },
+      "ambulances": { "total": 4 }
+    },
+    "staff": {
+      "doctors": { "total": 32 },
+      "nurses": { "total": 75 },
+      "specialists": { "infectiousDisease": 5 }
+    }
+  },
+  {
+    "name": "Community Clinic",
+    "email": "community@healsync.com",
+    "phone": "+91-9876543230",
+    "zone": "Zone-3",
+    "address": "Chembur East, Mumbai",
+    "coordinates": { "lat": 19.0626, "lng": 72.8991 },
+    "type": "Community Hospital",
+    "beds": {
+      "general": { "total": 50 },
+      "icu": { "total": 8 },
+      "isolation": { "total": 12 },
+      "pediatric": { "total": 15 },
+      "maternity": { "total": 10 }
+    },
+    "equipment": {
+      "ventilators": { "total": 8 },
+      "oxygenCylinders": { "total": 40 },
+      "xrayMachines": { "total": 2 },
+      "ctScanners": { "total": 1 },
+      "ambulances": { "total": 3 }
+    },
+    "staff": {
+      "doctors": { "total": 20 },
+      "nurses": { "total": 50 },
+      "specialists": { "infectiousDisease": 3 }
+    }
+  },
+  {
+    "name": "Eastern Suburbs Hospital",
+    "email": "eastern@healsync.com",
+    "phone": "+91-9876543231",
+    "zone": "Zone-3",
+    "address": "Ghatkopar West, Mumbai",
+    "coordinates": { "lat": 19.0896, "lng": 72.9081 },
+    "type": "General Hospital",
+    "beds": {
+      "general": { "total": 70 },
+      "icu": { "total": 13 },
+      "isolation": { "total": 18 },
+      "pediatric": { "total": 25 },
+      "maternity": { "total": 17 }
+    },
+    "equipment": {
+      "ventilators": { "total": 14 },
+      "oxygenCylinders": { "total": 65 },
+      "xrayMachines": { "total": 3 },
+      "ctScanners": { "total": 2 },
+      "ambulances": { "total": 5 }
+    },
+    "staff": {
+      "doctors": { "total": 35 },
+      "nurses": { "total": 80 },
+      "specialists": { "infectiousDisease": 5 }
+    }
+  },
+  {
+    "name": "Vikhroli Medical Center",
+    "email": "vikhroli@healsync.com",
+    "phone": "+91-9876543232",
+    "zone": "Zone-3",
+    "address": "LBS Road, Vikhroli, Mumbai",
+    "coordinates": { "lat": 19.1072, "lng": 72.9251 },
+    "type": "Medical Center",
+    "beds": {
+      "general": { "total": 55 },
+      "icu": { "total": 10 },
+      "isolation": { "total": 14 },
+      "pediatric": { "total": 18 },
+      "maternity": { "total": 13 }
+    },
+    "equipment": {
+      "ventilators": { "total": 10 },
+      "oxygenCylinders": { "total": 50 },
+      "xrayMachines": { "total": 2 },
+      "ctScanners": { "total": 1 },
+      "ambulances": { "total": 4 }
+    },
+    "staff": {
+      "doctors": { "total": 28 },
+      "nurses": { "total": 65 },
+      "specialists": { "infectiousDisease": 4 }
+    }
+  }
+]
+

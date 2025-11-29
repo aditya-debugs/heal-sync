@@ -1,15 +1,23 @@
-// backend/scripts/seedDatabase.js
+// backend/scripts/seedDatabase.js - Load from JSON files
 const mongoose = require('mongoose');
 const Entity = require('../models/Entity');
 const User = require('../models/User');
-const worldState = require('../worldState');
+const fs = require('fs');
+const path = require('path');
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/healsync';
 
+// Load JSON data files
+const hospitalsData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/hospitals.json'), 'utf8'));
+const labsData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/labs.json'), 'utf8'));
+const pharmaciesData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/pharmacies.json'), 'utf8'));
+const suppliersData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/suppliers.json'), 'utf8'));
+const cityAdminData = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/cityAdmin.json'), 'utf8'));
+
 async function seedDatabase() {
   try {
-    console.log('🌱 Starting database seeding...');
-    
+    console.log('🌱 Starting database seeding from JSON files...');
+
     // Connect to MongoDB
     await mongoose.connect(MONGODB_URI);
     console.log('✅ Connected to MongoDB');
@@ -24,12 +32,12 @@ async function seedDatabase() {
 
     // Seed Hospitals
     console.log('🏥 Seeding hospitals...');
-    for (const [id, hospital] of Object.entries(worldState.hospitals)) {
+    for (const hospital of hospitalsData) {
       const entity = await Entity.create({
         entityType: 'hospital',
         name: hospital.name,
-        email: `${id.toLowerCase()}@healsync.com`,
-        phone: hospital.contact?.phone || '+91-9876543210',
+        email: hospital.email,
+        phone: hospital.phone,
         zone: hospital.zone,
         address: hospital.address,
         coordinates: hospital.coordinates,
@@ -37,22 +45,91 @@ async function seedDatabase() {
           type: hospital.type,
           beds: hospital.beds,
           equipment: hospital.equipment,
-          staff: hospital.staff,
-          specialties: hospital.specialties
+          staff: hospital.staff
         },
         currentState: {
-          beds: hospital.beds,
-          equipment: hospital.equipment,
-          patientMetrics: hospital.patientMetrics
+          beds: {
+            general: { total: hospital.beds.general.total, used: 0, reserved: 0 },
+            icu: { total: hospital.beds.icu.total, used: 0, reserved: 0 },
+            isolation: { total: hospital.beds.isolation.total, used: 0, reserved: 0 },
+            pediatric: { total: hospital.beds.pediatric.total, used: 0, reserved: 0 },
+            maternity: { total: hospital.beds.maternity.total, used: 0, reserved: 0 }
+          },
+          equipment: {
+            ventilators: { 
+              total: hospital.equipment.ventilators.total, 
+              available: hospital.equipment.ventilators.total, 
+              inUse: 0, 
+              maintenance: 0 
+            },
+            oxygenCylinders: { 
+              total: hospital.equipment.oxygenCylinders.total, 
+              available: hospital.equipment.oxygenCylinders.total, 
+              inUse: 0, 
+              empty: 0 
+            },
+            xrayMachines: { 
+              total: hospital.equipment.xrayMachines.total, 
+              available: hospital.equipment.xrayMachines.total, 
+              inUse: 0, 
+              maintenance: 0 
+            },
+            ctScanners: { 
+              total: hospital.equipment.ctScanners.total, 
+              available: hospital.equipment.ctScanners.total, 
+              inUse: 0, 
+              maintenance: 0 
+            },
+            ambulances: { 
+              total: hospital.equipment.ambulances.total, 
+              available: hospital.equipment.ambulances.total, 
+              onRoute: 0, 
+              maintenance: 0 
+            }
+          },
+          staff: {
+            doctors: { 
+              total: hospital.staff.doctors.total, 
+              onDuty: hospital.staff.doctors.total, 
+              available: hospital.staff.doctors.total, 
+              onLeave: 0 
+            },
+            nurses: { 
+              total: hospital.staff.nurses.total, 
+              onDuty: hospital.staff.nurses.total, 
+              available: hospital.staff.nurses.total, 
+              onLeave: 0 
+            },
+            specialists: { infectiousDisease: hospital.staff.specialists.infectiousDisease }
+          },
+          patientMetrics: {
+            inflowPerHour: 12,
+            avgStayDuration: 48,
+            dischargesPerDay: 20,
+            emergencyCases: 8,
+            outpatients: 45,
+            admissionsToday: 0,
+            erWaitingTime: 30
+          },
+          diseasePrep: {
+            dengue: { prepared: false, wardReady: false, medicineStock: "adequate", staffAlerted: false },
+            malaria: { prepared: false, wardReady: false, medicineStock: "adequate", staffAlerted: false },
+            covid: { prepared: true, wardReady: true, medicineStock: "high", staffAlerted: true },
+            typhoid: { prepared: false, wardReady: false, medicineStock: "adequate", staffAlerted: false },
+            influenza: { prepared: true, wardReady: true, medicineStock: "adequate", staffAlerted: true }
+          },
+          history: {
+            bedsUsed: [],
+            patientInflow: [],
+            emergencyCases: []
+          }
         },
         status: 'active'
       });
-      
+
       entities.push(entity);
-      
-      // Create default user for each hospital
       users.push({
-        email: `${id.toLowerCase()}@healsync.com`,
+        email: hospital.email,
         password: 'password123',
         role: 'hospital',
         entityId: entity._id,
@@ -60,16 +137,16 @@ async function seedDatabase() {
         status: 'active'
       });
     }
-    console.log(`✅ Created ${Object.keys(worldState.hospitals).length} hospitals`);
+    console.log(`✅ Created ${hospitalsData.length} hospitals`);
 
     // Seed Labs
     console.log('🔬 Seeding labs...');
-    for (const [id, lab] of Object.entries(worldState.labs)) {
+    for (const lab of labsData) {
       const entity = await Entity.create({
         entityType: 'lab',
         name: lab.name,
-        email: `${id.toLowerCase()}@healsync.com`,
-        phone: lab.contact?.phone || '+91-9876543211',
+        email: lab.email,
+        phone: lab.phone,
         zone: lab.zone,
         address: lab.address,
         coordinates: lab.coordinates,
@@ -77,19 +154,27 @@ async function seedDatabase() {
           type: lab.type,
           testingCapacity: lab.testingCapacity,
           equipment: lab.equipment,
-          accreditation: lab.accreditation
+          staff: lab.staff
         },
         currentState: {
-          testResults: lab.testResults,
-          pendingTests: lab.pendingTests
+          testData: {
+            dengue: { today: 12, positive: 2, capacity: lab.testingCapacity.dengue.daily, history: [10, 11, 12], positiveRate: 0, tickCount: 0 },
+            malaria: { today: 8, positive: 1, capacity: lab.testingCapacity.malaria.daily, history: [7, 8, 8], positiveRate: 0, tickCount: 0 },
+            typhoid: { today: 5, positive: 0, capacity: lab.testingCapacity.typhoid.daily, history: [4, 5, 5], positiveRate: 0, tickCount: 0 },
+            influenza: { today: 15, positive: 3, capacity: lab.testingCapacity.bloodTests.daily, history: [12, 14, 15], positiveRate: 0, tickCount: 0 },
+            covid: { today: 20, positive: 1, capacity: lab.testingCapacity.covid.daily, history: [18, 19, 20], positiveRate: 0, tickCount: 0 }
+          },
+          equipment: lab.equipment,
+          history: {
+            testsProcessed: []
+          }
         },
         status: 'active'
       });
-      
+
       entities.push(entity);
-      
       users.push({
-        email: `${id.toLowerCase()}@healsync.com`,
+        email: lab.email,
         password: 'password123',
         role: 'lab',
         entityId: entity._id,
@@ -97,36 +182,37 @@ async function seedDatabase() {
         status: 'active'
       });
     }
-    console.log(`✅ Created ${Object.keys(worldState.labs).length} labs`);
+    console.log(`✅ Created ${labsData.length} labs`);
 
     // Seed Pharmacies
     console.log('💊 Seeding pharmacies...');
-    for (const [id, pharmacy] of Object.entries(worldState.pharmacies)) {
+    for (const pharmacy of pharmaciesData) {
       const entity = await Entity.create({
         entityType: 'pharmacy',
         name: pharmacy.name,
-        email: `${id.toLowerCase()}@healsync.com`,
-        phone: pharmacy.contact?.phone || '+91-9876543212',
+        email: pharmacy.email,
+        phone: pharmacy.phone,
         zone: pharmacy.zone,
         address: pharmacy.address,
         coordinates: pharmacy.coordinates,
         profile: {
           type: pharmacy.type,
-          license: pharmacy.license,
           storageCapacity: pharmacy.storageCapacity,
-          operatingHours: pharmacy.operatingHours
+          staff: pharmacy.staff
         },
         currentState: {
           medicines: pharmacy.medicines,
-          orders: pharmacy.orders || []
+          pendingOrders: [],
+          history: {
+            inventory: []
+          }
         },
         status: 'active'
       });
-      
+
       entities.push(entity);
-      
       users.push({
-        email: `${id.toLowerCase()}@healsync.com`,
+        email: pharmacy.email,
         password: 'password123',
         role: 'pharmacy',
         entityId: entity._id,
@@ -134,35 +220,35 @@ async function seedDatabase() {
         status: 'active'
       });
     }
-    console.log(`✅ Created ${Object.keys(worldState.pharmacies).length} pharmacies`);
+    console.log(`✅ Created ${pharmaciesData.length} pharmacies`);
 
     // Seed Suppliers
     console.log('📦 Seeding suppliers...');
-    for (const [id, supplier] of Object.entries(worldState.suppliers)) {
+    for (const supplier of suppliersData) {
       const entity = await Entity.create({
         entityType: 'supplier',
         name: supplier.name,
-        email: `${id.toLowerCase()}@healsync.com`,
-        phone: supplier.contact?.phone || '+91-9876543213',
-        zone: supplier.zone || 'Central',
-        address: supplier.address || 'Warehouse Location',
+        email: supplier.email,
+        phone: supplier.phone,
+        zone: supplier.zone,
+        address: supplier.address,
         coordinates: supplier.coordinates,
         profile: {
           type: supplier.type,
-          fleet: supplier.fleet,
-          constraints: supplier.constraints
+          serviceZones: supplier.serviceZones,
+          logistics: supplier.logistics,
+          staff: supplier.staff
         },
         currentState: {
           inventory: supplier.inventory,
-          pendingOrders: supplier.pendingOrders || []
+          activeOrders: []
         },
         status: 'active'
       });
-      
+
       entities.push(entity);
-      
       users.push({
-        email: `${id.toLowerCase()}@healsync.com`,
+        email: supplier.email,
         password: 'password123',
         role: 'supplier',
         entityId: entity._id,
@@ -170,40 +256,30 @@ async function seedDatabase() {
         status: 'active'
       });
     }
-    console.log(`✅ Created ${Object.keys(worldState.suppliers).length} suppliers`);
+    console.log(`✅ Created ${suppliersData.length} suppliers`);
 
     // Seed City Admin
     console.log('🏛️  Creating city admin...');
     const cityAdminEntity = await Entity.create({
       entityType: 'cityadmin',
-      name: 'Mumbai Municipal Corporation - Health Department',
-      email: 'cityadmin@healsync.com',
-      phone: '+91-9876543200',
-      zone: 'City-Wide',
-      address: 'Municipal Headquarters, Mumbai',
-      coordinates: { lat: 19.0760, lng: 72.8777 },
-      profile: {
-        department: 'Public Health Department',
-        jurisdiction: ['Zone-1', 'Zone-2', 'Zone-3', 'Zone-4'],
-        permissions: [
-          'view-all-entities',
-          'trigger-scenarios',
-          'redistribute-resources',
-          'issue-alerts'
-        ]
-      },
+      name: cityAdminData.departmentName,
+      email: cityAdminData.email,
+      phone: cityAdminData.phone,
+      zone: cityAdminData.zone,
+      address: cityAdminData.address,
+      coordinates: cityAdminData.coordinates,
+      profile: cityAdminData.profile,
       currentState: {},
       status: 'active'
     });
-    
+
     entities.push(cityAdminEntity);
-    
     users.push({
-      email: 'cityadmin@healsync.com',
+      email: cityAdminData.email,
       password: 'admin123',
       role: 'cityadmin',
       entityId: cityAdminEntity._id,
-      name: 'City Admin',
+      name: cityAdminData.name,
       status: 'active'
     });
     console.log('✅ Created city admin');
@@ -216,20 +292,21 @@ async function seedDatabase() {
     console.log(`✅ Created ${users.length} user accounts`);
 
     console.log('\n📊 Seeding Summary:');
-    console.log(`   Hospitals: ${Object.keys(worldState.hospitals).length}`);
-    console.log(`   Labs: ${Object.keys(worldState.labs).length}`);
-    console.log(`   Pharmacies: ${Object.keys(worldState.pharmacies).length}`);
-    console.log(`   Suppliers: ${Object.keys(worldState.suppliers).length}`);
+    console.log(`   Hospitals: ${hospitalsData.length}`);
+    console.log(`   Labs: ${labsData.length}`);
+    console.log(`   Pharmacies: ${pharmaciesData.length}`);
+    console.log(`   Suppliers: ${suppliersData.length}`);
     console.log(`   City Admin: 1`);
     console.log(`   Total Entities: ${entities.length}`);
     console.log(`   Total Users: ${users.length}`);
-    
+    console.log(`   Total Agents: ${entities.length} (${hospitalsData.length} hospitals + ${labsData.length} labs + ${pharmaciesData.length} pharmacies + ${suppliersData.length} suppliers + 1 city)`);
+
     console.log('\n🔑 Default Credentials:');
-    console.log('   Hospitals: h1@healsync.com / password123');
-    console.log('   Labs: l1@healsync.com / password123');
-    console.log('   Pharmacies: p1@healsync.com / password123');
-    console.log('   Suppliers: s1@healsync.com / password123');
-    console.log('   City Admin: cityadmin@healsync.com / admin123');
+    console.log(`   Hospitals: ${hospitalsData[0].email} / password123`);
+    console.log(`   Labs: ${labsData[0].email} / password123`);
+    console.log(`   Pharmacies: ${pharmaciesData[0].email} / password123`);
+    console.log(`   Suppliers: ${suppliersData[0].email} / password123`);
+    console.log(`   City Admin: ${cityAdminData.email} / admin123`);
 
     console.log('\n✅ Database seeding completed successfully!');
 
@@ -253,4 +330,3 @@ if (require.main === module) {
 }
 
 module.exports = seedDatabase;
-

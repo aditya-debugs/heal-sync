@@ -1,0 +1,87 @@
+[
+  {
+    "name": "MediSupply Co.",
+    "email": "medisupply@healsync.com",
+    "phone": "+91-9876543510",
+    "zone": "Zone-1",
+    "address": "Industrial Estate, Andheri East, Mumbai",
+    "coordinates": { "lat": 19.1158, "lng": 72.8698 },
+    "type": "Pharmaceutical Distributor",
+    "serviceZones": ["Zone-1", "Zone-2", "Zone-3"],
+    "inventory": {
+      "dengueMed": { "stock": 10000, "incoming": 0 },
+      "chloroquine": { "stock": 8000, "incoming": 0 },
+      "paracetamol": { "stock": 20000, "incoming": 0 },
+      "oseltamivir": { "stock": 5000, "incoming": 0 },
+      "ceftriaxone": { "stock": 6000, "incoming": 0 },
+      "ventilators": { "stock": 50, "incoming": 0 },
+      "oxygenCylinders": { "stock": 500, "incoming": 0 },
+      "ppe": { "stock": 10000, "incoming": 0 }
+    },
+    "logistics": {
+      "deliveryVehicles": { "total": 15 },
+      "maxDailyDeliveries": 50
+    },
+    "staff": {
+      "warehouseManagers": { "total": 5 },
+      "deliveryPersonnel": { "total": 20 }
+    }
+  },
+  {
+    "name": "PharmaCorp Distributors",
+    "email": "pharmacorp@healsync.com",
+    "phone": "+91-9876543520",
+    "zone": "Zone-2",
+    "address": "Lower Parel, Mumbai",
+    "coordinates": { "lat": 18.9968, "lng": 72.8310 },
+    "type": "Medical Supplies Distributor",
+    "serviceZones": ["Zone-1", "Zone-2", "Zone-3"],
+    "inventory": {
+      "dengueMed": { "stock": 9000, "incoming": 0 },
+      "chloroquine": { "stock": 7500, "incoming": 0 },
+      "paracetamol": { "stock": 18000, "incoming": 0 },
+      "oseltamivir": { "stock": 6000, "incoming": 0 },
+      "ceftriaxone": { "stock": 5500, "incoming": 0 },
+      "ventilators": { "stock": 40, "incoming": 0 },
+      "oxygenCylinders": { "stock": 450, "incoming": 0 },
+      "ppe": { "stock": 9000, "incoming": 0 }
+    },
+    "logistics": {
+      "deliveryVehicles": { "total": 12 },
+      "maxDailyDeliveries": 45
+    },
+    "staff": {
+      "warehouseManagers": { "total": 4 },
+      "deliveryPersonnel": { "total": 18 }
+    }
+  },
+  {
+    "name": "QuickMed Distributors",
+    "email": "quickmed@healsync.com",
+    "phone": "+91-9876543530",
+    "zone": "Zone-3",
+    "address": "Vikhroli MIDC, Mumbai",
+    "coordinates": { "lat": 19.1073, "lng": 72.9449 },
+    "type": "Healthcare Distributor",
+    "serviceZones": ["Zone-1", "Zone-2", "Zone-3"],
+    "inventory": {
+      "dengueMed": { "stock": 8500, "incoming": 0 },
+      "chloroquine": { "stock": 7000, "incoming": 0 },
+      "paracetamol": { "stock": 17000, "incoming": 0 },
+      "oseltamivir": { "stock": 5500, "incoming": 0 },
+      "ceftriaxone": { "stock": 6500, "incoming": 0 },
+      "ventilators": { "stock": 45, "incoming": 0 },
+      "oxygenCylinders": { "stock": 480, "incoming": 0 },
+      "ppe": { "stock": 9500, "incoming": 0 }
+    },
+    "logistics": {
+      "deliveryVehicles": { "total": 14 },
+      "maxDailyDeliveries": 48
+    },
+    "staff": {
+      "warehouseManagers": { "total": 4 },
+      "deliveryPersonnel": { "total": 19 }
+    }
+  }
+]
+

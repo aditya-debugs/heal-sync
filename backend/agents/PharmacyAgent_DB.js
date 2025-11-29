@@ -207,6 +207,12 @@ class PharmacyAgent {
   }
 
   async onOutbreakAlert(disease, primaryMedicine, event) {
+    // Add staggered delay to prevent parallel saves
+    const pharmacyIndex = this.entityId.toString().charCodeAt(this.entityId.toString().length - 1) % 3;
+    const baseDelay = pharmacyIndex * 600; // Stagger by pharmacy (0-1800ms)
+    const randomDelay = Math.random() * 1000; // Additional random (0-1000ms)
+    await new Promise(resolve => setTimeout(resolve, baseDelay + randomDelay));
+    
     // Reload entity
     this.entity = await Entity.findById(this.entityId);
     if (!this.entity) return;

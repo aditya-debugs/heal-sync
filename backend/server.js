@@ -1,4 +1,6 @@
 // backend/server.js
+require('dotenv').config(); // Load environment variables first
+
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
@@ -8,8 +10,7 @@ const { Server } = require('socket.io');
 const { connectDB, getConnectionStatus } = require('./config/database');
 
 // Routes
-const worldState = require('./worldState'); // Keep for now as fallback
-const { initAgents, setLogSender } = require('./agents/initAgents_DB'); // Use MongoDB version
+const { initAgents, setLogSender } = require('./agents/initAgents_DB'); // MongoDB version
 const stateRoutes = require('./routes/stateRoutes');
 const authRoutes = require('./routes/authRoutes');
 const entityRoutes = require('./routes/entityRoutes');
@@ -38,7 +39,7 @@ setLogSender(sendLog);
 app.use('/api/auth', authRoutes); // Authentication & Registration
 app.use('/api/entities', entityRoutes); // Entity management
 app.use('/api/analytics', analyticsRoutes); // Analytics & Heatmap
-app.use('/api', stateRoutes(worldState, getLogs, sendLog)); // Legacy state routes
+app.use('/api', stateRoutes(null, getLogs, sendLog)); // State routes (MongoDB-powered)
 
 // Basic health check
 app.get('/', (req, res) => {
@@ -71,11 +72,26 @@ async function startServer() {
   console.log('🚀 Initializing AI agents...');
   await initAgents();
   
-  // Start HTTP server
+  // Start HTTP server with error handling
   server.listen(PORT, () => {
     console.log(`✅ Backend server listening on port ${PORT}`);
     console.log(`📊 Database: ${getConnectionStatus() ? 'Connected' : 'Fallback Mode'}`);
     console.log(`🤖 Agents: Running`);
+  });
+
+  // Handle port already in use error
+  server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(`\n❌ Port ${PORT} is already in use!`);
+      console.log('\n💡 Fix this by running:');
+      console.log(`   lsof -ti:${PORT} | xargs kill -9`);
+      console.log('   OR');
+      console.log('   npm run kill-port\n');
+      process.exit(1);
+    } else {
+      console.error('❌ Server error:', error);
+      process.exit(1);
+    }
   });
 }
 

@@ -272,8 +272,11 @@ class HospitalAgent {
   }
 
   async onOutbreakAlert(disease, event) {
-    // Add delay to prevent parallel saves
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 500));
+    // Add staggered delay to prevent parallel saves (increased for 10 hospitals)
+    const hospitalIndex = this.entityId.toString().charCodeAt(this.entityId.toString().length - 1) % 10;
+    const baseDelay = hospitalIndex * 400; // Stagger by hospital (0-4000ms)
+    const randomDelay = Math.random() * 1500; // Additional random (0-1500ms)
+    await new Promise(resolve => setTimeout(resolve, baseDelay + randomDelay));
     
     // Reload entity to get latest data
     this.entity = await Entity.findById(this.entityId);
@@ -371,9 +374,30 @@ class HospitalAgent {
       }
     );
 
-    // Save updated state to database
+    // Save updated state to database with retry on parallel save error
     this.entity.markModified('currentState');
-    await this.entity.save();
+    try {
+      await this.entity.save();
+    } catch (error) {
+      if (error.name === 'ParallelSaveError') {
+        // Wait and retry once
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.entity = await Entity.findById(this.entityId);
+        if (this.entity) {
+          // Re-apply the changes
+          const state = this.entity.currentState;
+          if (state.diseasePrep && state.diseasePrep[disease]) {
+            state.diseasePrep[disease].prepared = true;
+            state.diseasePrep[disease].wardReady = true;
+            state.diseasePrep[disease].staffAlerted = true;
+          }
+          this.entity.markModified('currentState');
+          await this.entity.save();
+        }
+      } else {
+        throw error;
+      }
+    }
   }
 }
 

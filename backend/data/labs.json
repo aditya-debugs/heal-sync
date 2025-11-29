@@ -1,0 +1,153 @@
+[
+  {
+    "name": "West Mumbai Diagnostics",
+    "email": "westdiagnostics@healsync.com",
+    "phone": "+91-9876543310",
+    "zone": "Zone-1",
+    "address": "SV Road, Andheri West, Mumbai",
+    "coordinates": { "lat": 19.1197, "lng": 72.8464 },
+    "type": "Diagnostic Laboratory",
+    "testingCapacity": {
+      "dengue": { "daily": 200 },
+      "malaria": { "daily": 150 },
+      "covid": { "daily": 500 },
+      "typhoid": { "daily": 100 },
+      "bloodTests": { "daily": 300 }
+    },
+    "equipment": {
+      "rtpcrMachines": { "total": 5 },
+      "microscopes": { "total": 10 },
+      "centrifuges": { "total": 8 }
+    },
+    "staff": {
+      "pathologists": { "total": 8 },
+      "labTechnicians": { "total": 20 }
+    }
+  },
+  {
+    "name": "Juhu Pathology Center",
+    "email": "juhupathology@healsync.com",
+    "phone": "+91-9876543311",
+    "zone": "Zone-1",
+    "address": "Juhu Tara Road, Mumbai",
+    "coordinates": { "lat": 19.0990, "lng": 72.8265 },
+    "type": "Pathology Center",
+    "testingCapacity": {
+      "dengue": { "daily": 180 },
+      "malaria": { "daily": 130 },
+      "covid": { "daily": 450 },
+      "typhoid": { "daily": 90 },
+      "bloodTests": { "daily": 280 }
+    },
+    "equipment": {
+      "rtpcrMachines": { "total": 4 },
+      "microscopes": { "total": 8 },
+      "centrifuges": { "total": 6 }
+    },
+    "staff": {
+      "pathologists": { "total": 6 },
+      "labTechnicians": { "total": 15 }
+    }
+  },
+  {
+    "name": "Metro Diagnostics",
+    "email": "metrodiag@healsync.com",
+    "phone": "+91-9876543320",
+    "zone": "Zone-2",
+    "address": "Colaba Causeway, South Mumbai",
+    "coordinates": { "lat": 18.9067, "lng": 72.8147 },
+    "type": "Diagnostic Laboratory",
+    "testingCapacity": {
+      "dengue": { "daily": 220 },
+      "malaria": { "daily": 160 },
+      "covid": { "daily": 550 },
+      "typhoid": { "daily": 110 },
+      "bloodTests": { "daily": 320 }
+    },
+    "equipment": {
+      "rtpcrMachines": { "total": 6 },
+      "microscopes": { "total": 12 },
+      "centrifuges": { "total": 10 }
+    },
+    "staff": {
+      "pathologists": { "total": 10 },
+      "labTechnicians": { "total": 25 }
+    }
+  },
+  {
+    "name": "Central Lab Services",
+    "email": "centrallab@healsync.com",
+    "phone": "+91-9876543321",
+    "zone": "Zone-2",
+    "address": "Parel East, Mumbai",
+    "coordinates": { "lat": 19.0144, "lng": 72.8479 },
+    "type": "Laboratory Services",
+    "testingCapacity": {
+      "dengue": { "daily": 190 },
+      "malaria": { "daily": 140 },
+      "covid": { "daily": 480 },
+      "typhoid": { "daily": 95 },
+      "bloodTests": { "daily": 290 }
+    },
+    "equipment": {
+      "rtpcrMachines": { "total": 5 },
+      "microscopes": { "total": 9 },
+      "centrifuges": { "total": 7 }
+    },
+    "staff": {
+      "pathologists": { "total": 7 },
+      "labTechnicians": { "total": 18 }
+    }
+  },
+  {
+    "name": "East Side Labs",
+    "email": "eastside@healsync.com",
+    "phone": "+91-9876543330",
+    "zone": "Zone-3",
+    "address": "Ghatkopar East, Mumbai",
+    "coordinates": { "lat": 19.0866, "lng": 72.9081 },
+    "type": "Diagnostic Laboratory",
+    "testingCapacity": {
+      "dengue": { "daily": 210 },
+      "malaria": { "daily": 155 },
+      "covid": { "daily": 520 },
+      "typhoid": { "daily": 105 },
+      "bloodTests": { "daily": 310 }
+    },
+    "equipment": {
+      "rtpcrMachines": { "total": 5 },
+      "microscopes": { "total": 11 },
+      "centrifuges": { "total": 9 }
+    },
+    "staff": {
+      "pathologists": { "total": 9 },
+      "labTechnicians": { "total": 22 }
+    }
+  },
+  {
+    "name": "Mulund Pathology Lab",
+    "email": "mulundpath@healsync.com",
+    "phone": "+91-9876543331",
+    "zone": "Zone-3",
+    "address": "LBS Marg, Mulund West, Mumbai",
+    "coordinates": { "lat": 19.1723, "lng": 72.9560 },
+    "type": "Pathology Laboratory",
+    "testingCapacity": {
+      "dengue": { "daily": 175 },
+      "malaria": { "daily": 125 },
+      "covid": { "daily": 420 },
+      "typhoid": { "daily": 85 },
+      "bloodTests": { "daily": 270 }
+    },
+    "equipment": {
+      "rtpcrMachines": { "total": 4 },
+      "microscopes": { "total": 7 },
+      "centrifuges": { "total": 6 }
+    },
+    "staff": {
+      "pathologists": { "total": 5 },
+      "labTechnicians": { "total": 14 }
+    }
+  }
+]
+

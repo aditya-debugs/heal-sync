@@ -1,0 +1,22 @@
+{
+  "name": "City Health Admin",
+  "departmentName": "Mumbai Municipal Corporation - Health Department",
+  "email": "cityadmin@healsync.com",
+  "phone": "+91-9876543000",
+  "zone": "City-Wide",
+  "address": "BMC Headquarters, CST, Mumbai",
+  "coordinates": { "lat": 18.9398, "lng": 72.8355 },
+  "profile": {
+    "adminName": "City Health Officer",
+    "department": "Public Health Department",
+    "jurisdiction": ["Zone-1", "Zone-2", "Zone-3"],
+    "permissions": [
+      "view-all-entities",
+      "trigger-scenarios",
+      "redistribute-resources",
+      "issue-alerts",
+      "coordinate-responses"
+    ]
+  }
+}
+

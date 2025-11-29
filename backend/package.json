@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "kill-port": "lsof -ti:4000 | xargs kill -9 || echo 'No process on port 4000'",
+    "restart": "npm run kill-port && npm start",
+    "restart:dev": "npm run kill-port && npm run dev"
   },
   "keywords": [],
   "author": "",

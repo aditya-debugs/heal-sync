@@ -258,15 +258,68 @@ class DatabaseManager {
         return obj;
       };
 
+      // Calculate city-level aggregates
+      const summary = await this.getCityWideSummary();
+      
+      // Build zones with entity counts
+      const zones = {};
+      const zoneNames = ['Zone-1', 'Zone-2', 'Zone-3', 'Zone-4'];
+      
+      for (const zoneName of zoneNames) {
+        const zoneHospitals = hospitals.filter(h => h.zone === zoneName).map(h => h._id.toString());
+        const zoneLabs = labs.filter(l => l.zone === zoneName).map(l => l._id.toString());
+        const zonePharmacies = pharmacies.filter(p => p.zone === zoneName).map(p => p._id.toString());
+        
+        zones[zoneName] = {
+          name: zoneName,
+          population: 400000, // Default population
+          area: "35 sq km",
+          hospitals: zoneHospitals,
+          labs: zoneLabs,
+          pharmacies: zonePharmacies,
+          coordinates: { lat: 19.0760, lng: 72.8777 } // Default Mumbai center
+        };
+      }
+      
+      // Build city object
+      const city = {
+        name: 'Mumbai Healthcare System',
+        totalResources: {
+          beds: {
+            total: summary?.totalBeds || 0,
+            available: (summary?.totalBeds || 0) - (summary?.usedBeds || 0)
+          },
+          hospitals: summary?.hospitals || 0,
+          labs: summary?.labs || 0,
+          pharmacies: summary?.pharmacies || 0
+        },
+        activeAlerts: [],
+        diseaseStats: {
+          dengue: { activeCases: 0, newToday: 0, trend: 'stable' },
+          malaria: { activeCases: 0, newToday: 0, trend: 'stable' },
+          covid: { activeCases: 0, newToday: 0, trend: 'stable' },
+          typhoid: { activeCases: 0, newToday: 0, trend: 'stable' },
+          influenza: { activeCases: 0, newToday: 0, trend: 'stable' }
+        },
+        zones
+      };
+
       return {
         hospitals: convertToObject(hospitals),
         labs: convertToObject(labs),
         pharmacies: convertToObject(pharmacies),
-        suppliers: convertToObject(suppliers)
+        suppliers: convertToObject(suppliers),
+        city
       };
     } catch (error) {
       console.error('Error building world state from DB:', error);
-      return { hospitals: {}, labs: {}, pharmacies: {}, suppliers: {} };
+      return { 
+        hospitals: {}, 
+        labs: {}, 
+        pharmacies: {}, 
+        suppliers: {},
+        city: { name: 'Mumbai Healthcare System', totalResources: {}, activeAlerts: [], diseaseStats: {} }
+      };
     }
   }
 }
